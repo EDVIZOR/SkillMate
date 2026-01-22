@@ -6,6 +6,7 @@ import Signup from './pages/Signup/Signup';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Profile/Profile';
 import VerifyOTP from './pages/VerifyOTP/VerifyOTP';
+import Roadmaps from './pages/Roadmaps/Roadmaps';
 
 const App: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/roadmaps" element={<Roadmaps />} />
       </Routes>
     </BrowserRouter>
   );
