@@ -55,9 +55,9 @@ const Login: React.FC = () => {
         // Store token in localStorage
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        setMessage('Login successful! Redirecting...');
+        setMessage('Login successful! Redirecting to dashboard...');
         setTimeout(() => {
-          navigate('/');
+          navigate('/dashboard');
         }, 1500);
       } else {
         // Handle errors

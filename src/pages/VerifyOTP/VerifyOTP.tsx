@@ -133,9 +133,9 @@ const VerifyOTP: React.FC = () => {
         // Store token in localStorage
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        setMessage('Account verified successfully! Redirecting...');
+        setMessage('Account verified successfully! Redirecting to dashboard...');
         setTimeout(() => {
-          navigate('/');
+          navigate('/dashboard');
         }, 2000);
       } else {
         if (data.otp_code) {
