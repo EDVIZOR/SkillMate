@@ -76,21 +76,51 @@ const SkillGapAnalysis: React.FC = () => {
       setLoading(true);
       setError('');
 
+      // Check authentication
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Please login to analyze your skills.');
+        setLoading(false);
+        return;
+      }
+
       // Save user skills first
       const skillsArray = Array.from(userSkills.entries()).map(([skillId, proficiency]) => ({
         skill_id: skillId,
         proficiency_level: proficiency as any,
       }));
 
-      await roleReadyApi.updateUserSkills(skillsArray);
+      try {
+        await roleReadyApi.updateUserSkills(skillsArray);
+      } catch (skillErr: any) {
+        console.error('Error updating skills:', skillErr);
+        // Continue even if skill update fails - user might not have selected any skills
+        if (skillErr.response?.status === 403) {
+          setError('Authentication failed. Please login again.');
+          setLoading(false);
+          return;
+        }
+      }
 
       // Run analysis
       const result = await roleReadyApi.analyzeSkillGap(selectedRole.id, false);
       setAnalysisResult(result);
       setStep('results');
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to analyze skills. Please try again.');
-      console.error(err);
+      console.error('Analysis error:', err);
+      let errorMessage = 'Failed to analyze skills. Please try again.';
+      
+      if (err.response?.status === 403) {
+        errorMessage = 'Authentication failed. Please login again.';
+      } else if (err.response?.status === 400) {
+        errorMessage = err.response?.data?.error || err.response?.data?.detail || errorMessage;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

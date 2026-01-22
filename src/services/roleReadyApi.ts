@@ -59,6 +59,12 @@ export interface SkillGapResult {
   breakdowns: SkillGapBreakdown[];
 }
 
+export interface Assignment {
+  title: string;
+  description: string;
+  deliverables?: string[];
+}
+
 export interface RoadmapStep {
   id: number;
   skill: Skill;
@@ -67,6 +73,7 @@ export interface RoadmapStep {
   description: string;
   status: 'pending' | 'in_progress' | 'completed' | 'skipped';
   resources: any[];
+  assignments: Assignment[];
   estimated_hours: number;
   started_at: string | null;
   completed_at: string | null;

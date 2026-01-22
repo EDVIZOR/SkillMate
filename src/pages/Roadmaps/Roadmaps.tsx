@@ -358,6 +358,29 @@ const Roadmaps: React.FC = () => {
                             </ul>
                           </div>
                         )}
+                        {step.assignments && step.assignments.length > 0 && (
+                          <div className="step-assignments">
+                            <strong>📋 Assignments:</strong>
+                            <div className="assignments-list">
+                              {step.assignments.map((assignment: any, idx: number) => (
+                                <div key={idx} className="assignment-item">
+                                  <h5 className="assignment-title">{assignment.title}</h5>
+                                  <p className="assignment-description">{assignment.description}</p>
+                                  {assignment.deliverables && assignment.deliverables.length > 0 && (
+                                    <div className="assignment-deliverables">
+                                      <strong>Deliverables:</strong>
+                                      <ul>
+                                        {assignment.deliverables.map((deliverable: string, dIdx: number) => (
+                                          <li key={dIdx}>{deliverable}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

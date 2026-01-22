@@ -13,7 +13,7 @@ const getHeaders = (): HeadersInit => {
   
   const token = getAuthToken();
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers['Authorization'] = `Token ${token}`;
   }
   
   return headers;

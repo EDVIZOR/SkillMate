@@ -571,6 +571,12 @@ class RoadmapGenerator:
                         step_type_info['type'],
                         gap_level
                     ),
+                    'assignments': self._generate_assignments(
+                        skill,
+                        step_type_info['type'],
+                        gap_level,
+                        breakdown
+                    ),
                 }
                 steps.append(step)
                 step_order += 1
@@ -728,6 +734,144 @@ class RoadmapGenerator:
             ])
         
         return resources
+    
+    def _generate_assignments(
+        self,
+        skill: Skill,
+        step_type: str,
+        gap_level: str,
+        breakdown: SkillGapBreakdown
+    ) -> List[Dict]:
+        """
+        Generate assignments/tasks for a roadmap step.
+        
+        Args:
+            skill: Skill object
+            step_type: Type of step (learn, build, validate)
+            gap_level: Gap level
+            breakdown: Skill gap breakdown
+            
+        Returns:
+            List[Dict]: List of assignment dictionaries with title, description, and deliverables
+        """
+        assignments = []
+        
+        if step_type == 'learn':
+            assignments.extend([
+                {
+                    'title': f'Study {skill.name} Fundamentals',
+                    'description': f'Read documentation and complete tutorials on {skill.name} core concepts. Focus on understanding the fundamental principles and best practices.',
+                    'deliverables': [
+                        'Complete at least 3 tutorial exercises',
+                        'Write a summary document of key concepts',
+                        'Create a cheat sheet or reference guide'
+                    ]
+                },
+                {
+                    'title': f'Watch {skill.name} Video Series',
+                    'description': f'Watch comprehensive video tutorials covering {skill.name} from beginner to intermediate level. Take notes on important concepts.',
+                    'deliverables': [
+                        'Watch minimum 5 hours of video content',
+                        'Complete all practice exercises in videos',
+                        'Document key takeaways and insights'
+                    ]
+                },
+                {
+                    'title': f'Practice {skill.name} Concepts',
+                    'description': f'Apply what you learned by practicing {skill.name} through hands-on exercises and small coding challenges.',
+                    'deliverables': [
+                        'Complete 10 practice exercises',
+                        'Solve 3 coding challenges',
+                        'Submit solutions for review'
+                    ]
+                }
+            ])
+            
+            if gap_level == 'critical':
+                assignments.append({
+                    'title': f'Deep Dive: {skill.name} Advanced Topics',
+                    'description': f'Since this is a critical skill gap, spend additional time on advanced {skill.name} topics relevant to {self.target_role.name}.',
+                    'deliverables': [
+                        'Research advanced use cases',
+                        'Study real-world implementations',
+                        'Document advanced patterns and techniques'
+                    ]
+                })
+        
+        elif step_type == 'build':
+            assignments.extend([
+                {
+                    'title': f'Design {skill.name} Project',
+                    'description': f'Design a practical project that demonstrates your {skill.name} skills. The project should be relevant to {self.target_role.name} role requirements.',
+                    'deliverables': [
+                        'Project proposal document',
+                        'Architecture diagram or wireframe',
+                        'Technology stack selection with justification'
+                    ]
+                },
+                {
+                    'title': f'Build {skill.name} Project',
+                    'description': f'Implement the designed project using {skill.name}. Focus on writing clean, maintainable code following best practices.',
+                    'deliverables': [
+                        'Working project codebase',
+                        'GitHub repository with proper README',
+                        'Code follows best practices and conventions'
+                    ]
+                },
+                {
+                    'title': f'Test and Document {skill.name} Project',
+                    'description': f'Write comprehensive tests for your project and create detailed documentation. Ensure the project is production-ready.',
+                    'deliverables': [
+                        'Unit tests with >80% coverage',
+                        'Integration tests for key features',
+                        'Complete project documentation (README, API docs, etc.)'
+                    ]
+                }
+            ])
+            
+            if gap_level == 'critical':
+                assignments.append({
+                    'title': f'Enhance Project with Advanced {skill.name} Features',
+                    'description': f'Add advanced {skill.name} features to showcase deeper understanding and meet critical skill requirements.',
+                    'deliverables': [
+                        'Implement at least 3 advanced features',
+                        'Performance optimization',
+                        'Security best practices implementation'
+                    ]
+                })
+        
+        elif step_type == 'validate':
+            assignments.extend([
+                {
+                    'title': f'Deploy {skill.name} Project',
+                    'description': f'Deploy your {skill.name} project to a production environment (cloud platform, hosting service, etc.). Ensure it\'s accessible and functional.',
+                    'deliverables': [
+                        'Live deployed project URL',
+                        'Deployment documentation',
+                        'Environment configuration guide'
+                    ]
+                },
+                {
+                    'title': f'Get Code Review for {skill.name} Project',
+                    'description': f'Share your {skill.name} project with peers, mentors, or on code review platforms. Incorporate feedback to improve code quality.',
+                    'deliverables': [
+                        'Code review from at least 2 reviewers',
+                        'List of feedback received',
+                        'Refactored code based on feedback'
+                    ]
+                },
+                {
+                    'title': f'Complete {skill.name} Skill Assessment',
+                    'description': f'Take a skill assessment or certification exam for {skill.name}. This validates your proficiency level for {self.target_role.name}.',
+                    'deliverables': [
+                        'Completed assessment/certification',
+                        'Score report or certificate',
+                        'Self-reflection on strengths and areas for improvement'
+                    ]
+                }
+            ])
+        
+        return assignments
     
     @transaction.atomic
     def _persist_roadmap(

@@ -299,6 +299,11 @@ class RoadmapStep(models.Model):
         blank=True,
         help_text="List of learning resources (URLs, books, courses, etc.)"
     )
+    assignments = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="List of assignments/tasks for this step. Each assignment has title, description, and optional deliverables."
+    )
     estimated_hours = models.IntegerField(
         null=True,
         blank=True,
