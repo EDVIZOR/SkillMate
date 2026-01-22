@@ -26,7 +26,8 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   'aria-label': ariaLabel
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-sans font-medium border-none rounded-lg cursor-pointer transition-all duration-200 no-underline whitespace-nowrap select-none';
+  const baseClasses = 'inline-flex items-center justify-center font-sans font-semibold border-none rounded-lg cursor-pointer transition-all duration-200 no-underline whitespace-nowrap select-none';
+  const fontFamily = { fontFamily: "'Mulish', sans-serif", letterSpacing: '-0.01em', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' } as React.CSSProperties;
   
   const variantClasses = {
     primary: 'bg-gradient-primary text-white shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:shadow-md',
@@ -57,6 +58,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       type={type}
       className={classes}
+      style={fontFamily}
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}

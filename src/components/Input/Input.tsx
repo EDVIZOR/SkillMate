@@ -13,6 +13,7 @@ export interface InputProps {
   id?: string;
   name?: string;
   autoComplete?: string;
+  maxLength?: number;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -27,7 +28,8 @@ const Input: React.FC<InputProps> = ({
   className = '',
   id,
   name,
-  autoComplete
+  autoComplete,
+  maxLength
 }) => {
   const inputId = id || name || `input-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -36,7 +38,8 @@ const Input: React.FC<InputProps> = ({
       {label && (
         <label 
           htmlFor={inputId} 
-          className="text-sm font-medium text-gray-300"
+          className="text-sm font-semibold text-gray-300"
+          style={{ fontFamily: "'Mulish', sans-serif", letterSpacing: '-0.005em', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}
         >
           {label}
           {required && <span className="text-purple-400 ml-1">*</span>}
@@ -52,6 +55,8 @@ const Input: React.FC<InputProps> = ({
         required={required}
         disabled={disabled}
         autoComplete={autoComplete}
+        maxLength={maxLength}
+        style={{ fontFamily: "'Mulish', sans-serif", letterSpacing: '-0.005em', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}
         className={`
           w-full px-4 py-3 bg-gray-800/50 border rounded-lg
           text-white placeholder-gray-500
@@ -62,7 +67,12 @@ const Input: React.FC<InputProps> = ({
         `}
       />
       {error && (
-        <p className="text-sm text-red-400">{error}</p>
+        <p 
+          className="text-sm text-red-400"
+          style={{ fontFamily: "'Mulish', sans-serif", letterSpacing: '-0.005em', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}
+        >
+          {error}
+        </p>
       )}
     </div>
   );

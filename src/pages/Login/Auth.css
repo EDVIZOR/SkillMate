@@ -53,17 +53,26 @@
 }
 
 .auth-title {
+  font-family: 'Mulish', sans-serif;
   font-size: 2.25rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #ffffff;
   margin-bottom: 0.75rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .auth-subtitle {
+  font-family: 'Mulish', sans-serif;
   font-size: 1rem;
+  font-weight: 400;
   color: #9ca3af;
-  line-height: 1.6;
+  line-height: 1.7;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .auth-form {
@@ -167,18 +176,27 @@
 }
 
 .auth-illustration-title {
+  font-family: 'Mulish', sans-serif;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #4c1d95;
   margin-bottom: 1rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .auth-illustration-text {
+  font-family: 'Mulish', sans-serif;
   font-size: 1.125rem;
+  font-weight: 400;
   color: #6d28d9;
   line-height: 1.75;
+  letter-spacing: -0.005em;
   margin-bottom: 2rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .auth-features {
@@ -194,6 +212,11 @@
   gap: 0.75rem;
   color: #5b21b6;
   font-size: 1rem;
+  font-family: 'Mulish', sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .auth-feature-icon {

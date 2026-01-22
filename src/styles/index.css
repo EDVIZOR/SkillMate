@@ -9,10 +9,19 @@
 
   html {
     @apply scroll-smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply font-sans text-base leading-normal text-gray-900 bg-white antialiased;
+    @apply font-sans text-base leading-relaxed text-gray-900 bg-white;
+    font-family: 'Mulish', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   *:focus-visible {
@@ -30,35 +39,91 @@
   }
 
   .heading-1 {
-    @apply text-5xl font-bold leading-tight text-gray-900 tracking-tight;
+    @apply text-5xl font-bold leading-[1.1] text-gray-900;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .heading-2 {
-    @apply text-4xl font-bold leading-tight text-gray-900 tracking-tight;
+    @apply text-4xl font-bold leading-[1.15] text-gray-900;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .heading-3 {
-    @apply text-3xl font-semibold leading-tight text-gray-900;
+    @apply text-3xl font-semibold leading-[1.2] text-gray-900;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .heading-4 {
-    @apply text-2xl font-semibold leading-normal text-gray-900;
+    @apply text-2xl font-semibold leading-[1.3] text-gray-900;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .heading-5 {
-    @apply text-xl font-semibold leading-normal text-gray-900;
+    @apply text-xl font-semibold leading-[1.4] text-gray-900;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .body-large {
-    @apply text-lg leading-relaxed text-gray-600;
+    @apply text-lg leading-[1.7] text-gray-600;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .body-base {
-    @apply text-base leading-normal text-gray-600;
+    @apply text-base leading-[1.6] text-gray-600;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .body-small {
-    @apply text-sm leading-normal text-gray-500;
+    @apply text-sm leading-[1.5] text-gray-500;
+    font-family: 'Mulish', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .logo-text {
+    font-family: 'Mulish', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 

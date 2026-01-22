@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components';
 import Input from '../../components/Input/Input';
 import '../Login/Auth.css';
 
+const API_BASE_URL = 'http://localhost:8000/api/auth';
+
 const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -26,6 +30,7 @@ const Signup: React.FC = () => {
         [e.target.name]: ''
       });
     }
+    setMessage('');
   };
 
   const validateForm = () => {
@@ -55,13 +60,52 @@ const Signup: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Handle signup - to be connected to backend later
-      console.log('Signup attempt:', formData);
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setMessage('');
+    setErrors({});
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/signup/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          confirm_password: formData.confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Navigate to OTP verification page
+        navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
+      } else {
+        // Handle errors
+        if (data.email) {
+          setErrors({ email: data.email[0] });
+        } else if (data.password) {
+          setErrors({ password: data.password[0] });
+        } else if (data.non_field_errors) {
+          setErrors({ email: data.non_field_errors[0] });
+        } else {
+          setErrors({ email: 'Something went wrong. Please try again.' });
+        }
+      }
+    } catch (error) {
+      setErrors({ email: 'Network error. Please check your connection.' });
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="auth-page">
@@ -79,7 +123,17 @@ const Signup: React.FC = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="auth-form">
+            {message && (
+              <div className={`mb-4 p-3 rounded-lg text-sm ${
+                message.includes('successfully') 
+                  ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
+                  : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+              }`}>
+                {message}
+              </div>
+            )}
+
+            <form onSubmit={handleSignup} className="auth-form">
               <Input
                 type="text"
                 name="name"
@@ -90,6 +144,7 @@ const Signup: React.FC = () => {
                 error={errors.name}
                 required
                 autoComplete="name"
+                disabled={loading}
               />
 
               <Input
@@ -102,6 +157,7 @@ const Signup: React.FC = () => {
                 error={errors.email}
                 required
                 autoComplete="email"
+                disabled={loading}
               />
 
               <Input
@@ -114,6 +170,7 @@ const Signup: React.FC = () => {
                 error={errors.password}
                 required
                 autoComplete="new-password"
+                disabled={loading}
               />
 
               <Input
@@ -126,6 +183,7 @@ const Signup: React.FC = () => {
                 error={errors.confirmPassword}
                 required
                 autoComplete="new-password"
+                disabled={loading}
               />
 
               <Button
@@ -133,8 +191,9 @@ const Signup: React.FC = () => {
                 variant="primary"
                 size="lg"
                 className="w-full mt-2"
+                disabled={loading}
               >
-                Create Account
+                {loading ? 'Sending OTP...' : 'Create Account'}
               </Button>
             </form>
 
