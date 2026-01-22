@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Profile from './pages/Profile/Profile';
 import VerifyOTP from './pages/VerifyOTP/VerifyOTP';
 import Roadmaps from './pages/Roadmaps/Roadmaps';
+import Chatbot from './pages/Chatbot/Chatbot';
 
 const App: React.FC = () => {
   return (
@@ -19,6 +20,7 @@ const App: React.FC = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/roadmaps" element={<Roadmaps />} />
+        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </BrowserRouter>
   );

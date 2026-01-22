@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, User, BookOpen, Trophy, Briefcase, Lightbulb, LogOut, Bell, Settings, Calendar, ClipboardCheck, Compass, TrendingUp, Target, Map, Search, ChevronDown } from 'lucide-react';
+import { Home, User, BookOpen, Trophy, Briefcase, Lightbulb, LogOut, Bell, Settings, Calendar, ClipboardCheck, Compass, TrendingUp, Target, Map, Search, ChevronDown, MessageSquare } from 'lucide-react';
 
 // Default student info
 const defaultStudentInfo = {
@@ -71,7 +71,7 @@ const Dashboard: React.FC = () => {
     { icon: Home, label: 'Dashboard', route: '/dashboard' },
     { icon: User, label: 'Personal Info', route: '/profile' },
     { icon: BookOpen, label: 'Academics', route: '/academics' },
-    { icon: ClipboardCheck, label: 'Assessments', route: '/assessment/start' },
+    { icon: MessageSquare, label: "SkillMate's AI", route: '/chatbot' },
     { icon: Compass, label: 'Career Guidance', route: '/guidance' },
     { icon: Map, label: 'Learning Roadmaps', route: '/roadmaps' },
     { icon: TrendingUp, label: 'My Progress', route: '/progress' },
