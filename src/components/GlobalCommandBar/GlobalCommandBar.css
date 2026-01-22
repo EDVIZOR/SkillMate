@@ -1,0 +1,336 @@
+/* Global AI Command Bar - SkillMate Purple Theme */
+.global-command-bar {
+  position: fixed !important;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999 !important;
+  width: 100%;
+  max-width: 48rem;
+  padding: 0 1rem;
+  pointer-events: auto !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  isolation: isolate; /* Creates new stacking context */
+}
+
+.command-bar-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+.global-command-bar.focused .command-bar-container,
+.global-command-bar.expanded .command-bar-container {
+  box-shadow: 0 12px 48px rgba(124, 58, 237, 0.25);
+  border-color: rgba(124, 58, 237, 0.4);
+  transform: translateY(-2px);
+}
+
+.global-command-bar.processing .command-bar-container {
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+.command-bar-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  position: relative;
+  pointer-events: auto;
+}
+
+.command-bar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.global-command-bar.focused .command-bar-icon,
+.global-command-bar.expanded .command-bar-icon {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+}
+
+.command-bar-icon .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+}
+
+.command-bar-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: #2C1810;
+  line-height: 1.5;
+  padding: 0.5rem 0;
+  min-width: 0;
+  pointer-events: auto;
+  cursor: text;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.command-bar-input::placeholder {
+  color: rgba(76, 29, 149, 0.5);
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.command-bar-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.command-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.command-bar-send-button,
+.command-bar-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  border-radius: 0.625rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #7c3aed;
+}
+
+.command-bar-send-button {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.command-bar-send-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+.command-bar-send-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.command-bar-send-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.command-bar-close-button {
+  color: rgba(76, 29, 149, 0.6);
+}
+
+.command-bar-close-button:hover {
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+  transform: scale(1.1);
+}
+
+.command-bar-close-button:active {
+  transform: scale(0.95);
+}
+
+.command-bar-actions .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Helper text section */
+.command-bar-helper {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid rgba(124, 58, 237, 0.1);
+  background: rgba(245, 243, 255, 0.5);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.helper-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: rgba(76, 29, 149, 0.7);
+  line-height: 1.5;
+  text-align: center;
+  font-weight: 400;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .global-command-bar {
+    bottom: 1rem;
+    padding: 0 0.75rem;
+    max-width: 100%;
+  }
+
+  .command-bar-container {
+    border-radius: 1.25rem;
+  }
+
+  .command-bar-content {
+    padding: 0.75rem 1rem;
+    gap: 0.625rem;
+  }
+
+  .command-bar-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    border-radius: 0.625rem;
+  }
+
+  .command-bar-icon .icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .command-bar-input {
+    font-size: 0.9375rem;
+  }
+
+  .command-bar-send-button,
+  .command-bar-close-button {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .command-bar-helper {
+    padding: 0.625rem 1rem;
+  }
+
+  .helper-text {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .global-command-bar {
+    bottom: 0.75rem;
+    padding: 0 0.5rem;
+  }
+
+  .command-bar-container {
+    border-radius: 1rem;
+  }
+
+  .command-bar-content {
+    padding: 0.625rem 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .command-bar-icon {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .command-bar-input {
+    font-size: 0.875rem;
+  }
+
+  .command-bar-input::placeholder {
+    font-size: 0.875rem;
+  }
+
+  .helper-text {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Accessibility - Focus visible */
+.command-bar-input:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.5);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.command-bar-send-button:focus-visible,
+.command-bar-close-button:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.5);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+.global-command-bar * {
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Ensure all interactive elements have proper pointer events */
+.global-command-bar,
+.global-command-bar * {
+  pointer-events: auto;
+}
+
+/* Explicitly enable pointer events on input and buttons */
+.command-bar-input,
+.command-bar-send-button,
+.command-bar-close-button,
+.command-bar-icon {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+.command-bar-input {
+  cursor: text !important;
+}
+
+.command-bar-input:disabled {
+  cursor: not-allowed !important;
+}
+
