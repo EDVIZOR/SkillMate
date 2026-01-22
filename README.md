@@ -6,8 +6,9 @@ A modern, beginner-friendly landing page for an AI-guided student web applicatio
 
 - **Color Palette**: Purple-dominant theme with soft gradients
 - **Typography**: Inter font family with clear hierarchy
-- **Components**: Reusable Button and Card components
+- **Components**: Reusable Button, Card, and Input components
 - **Layout**: Desktop-first, fully responsive design
+- **Styling**: Tailwind CSS with custom purple theme
 
 ## 🚀 Getting Started
 
@@ -37,22 +38,24 @@ npm run build
 src/
 ├── components/          # Reusable UI components
 │   ├── Button/
-│   └── Card/
+│   ├── Card/
+│   └── Input/
 ├── pages/              # Page components
-│   └── LandingPage/
+│   ├── LandingPage/
+│   ├── Login/
+│   └── Signup/
 ├── styles/             # Global styles and design system
-│   ├── design-system.css
 │   └── index.css
-└── main.jsx           # Application entry point
+└── main.tsx           # Application entry point
 ```
 
 ## 🎯 Features
 
-- **Hero Section**: Welcoming introduction with clear value proposition
-- **Trust Section**: Builds confidence and reduces fear
-- **Features Section**: Explores engineering domains in beginner-friendly language
-- **CTA Section**: Encourages action without pressure
+- **Landing Page**: Complete landing page with hero, features, trust sections, and CTA
+- **Authentication Pages**: Login and Signup pages with two-panel layout
 - **Responsive Design**: Works beautifully on all devices
+- **TypeScript**: Fully typed React components
+- **Routing**: React Router setup for navigation
 
 ## 💜 Design Principles
 
@@ -62,3 +65,9 @@ src/
 - Clear communication that this is for beginners
 - Premium student-portal aesthetic
 
+## 🛠️ Tech Stack
+
+- React 18 with TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- React Router for navigation
