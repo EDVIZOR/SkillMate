@@ -110,6 +110,16 @@ const Dashboard: React.FC = () => {
       route: '/roadmaps',
       gradient: 'from-indigo-500 to-indigo-600',
       iconColor: 'text-indigo-600'
+    },
+    {
+      id: 'skill-gap',
+      icon: Target,
+      title: 'Skill Gap Analysis',
+      description: 'Analyze your skills against your target role. Get personalized readiness score and learning roadmap.',
+      ctaText: 'Analyze Skills',
+      route: '/skill-gap-analysis',
+      gradient: 'from-purple-500 to-purple-600',
+      iconColor: 'text-purple-600'
     }
   ];
 

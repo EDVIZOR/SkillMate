@@ -4,7 +4,7 @@ import { Button } from '../../components';
 import Input from '../../components/Input/Input';
 import './Auth.css';
 
-const API_BASE_URL = 'http://localhost:8000/api/auth';
+const API_BASE_URL = '/api/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +38,10 @@ const Login: React.FC = () => {
     setErrors({});
 
     try {
-      const response = await fetch(`${API_BASE_URL}/login/`, {
+      const url = `${API_BASE_URL}/login/`;
+      console.log('Login request URL:', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +52,18 @@ const Login: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
+      console.log('Login response status:', response.status, response.statusText);
+
+      let data;
+      try {
+        data = await response.json();
+        console.log('Login response data:', data);
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        setErrors({ email: `Server error: ${response.status} ${response.statusText}. Please try again.` });
+        setLoading(false);
+        return;
+      }
 
       if (response.ok) {
         // Store token in localStorage
@@ -62,17 +76,22 @@ const Login: React.FC = () => {
       } else {
         // Handle errors
         if (data.email) {
-          setErrors({ email: data.email[0] });
+          setErrors({ email: Array.isArray(data.email) ? data.email[0] : data.email });
         } else if (data.password) {
-          setErrors({ password: data.password[0] });
+          setErrors({ password: Array.isArray(data.password) ? data.password[0] : data.password });
         } else if (data.non_field_errors) {
-          setErrors({ email: data.non_field_errors[0] });
+          const errorMsg = Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : data.non_field_errors;
+          setErrors({ email: errorMsg });
+        } else if (data.error) {
+          setErrors({ email: data.error });
         } else {
           setErrors({ email: 'Invalid email or password.' });
         }
       }
-    } catch (error) {
-      setErrors({ email: 'Network error. Please check your connection.' });
+    } catch (error: any) {
+      console.error('Login error:', error);
+      const errorMessage = error.message || 'Network error. Please check your connection and ensure the backend server is running.';
+      setErrors({ email: errorMessage });
     } finally {
       setLoading(false);
     }

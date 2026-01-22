@@ -8,6 +8,8 @@ import Profile from './pages/Profile/Profile';
 import VerifyOTP from './pages/VerifyOTP/VerifyOTP';
 import Roadmaps from './pages/Roadmaps/Roadmaps';
 import Chatbot from './pages/Chatbot/Chatbot';
+import SharedChat from './pages/Chatbot/SharedChat';
+import SkillGapAnalysis from './pages/SkillGapAnalysis/SkillGapAnalysis';
 
 const App: React.FC = () => {
   return (
@@ -20,7 +22,9 @@ const App: React.FC = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/roadmaps" element={<Roadmaps />} />
+        <Route path="/skill-gap-analysis" element={<SkillGapAnalysis />} />
         <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/chatbot/share/:shareId" element={<SharedChat />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Card } from '../../components';
+import { roleReadyApi, LearningRoadmap } from '../../services/roleReadyApi';
+import { BookOpen, CheckCircle, Clock, PlayCircle, Target, ArrowRight } from 'lucide-react';
 import './Roadmaps.css';
 
 interface Roadmap {
@@ -128,8 +131,63 @@ const getRoadmapIcon = (name: string): string => {
 };
 
 const Roadmaps: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const roleIdParam = searchParams.get('role_id');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [userRoadmaps, setUserRoadmaps] = useState<LearningRoadmap[]>([]);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<LearningRoadmap | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [showGeneratedRoadmaps, setShowGeneratedRoadmaps] = useState(false);
+
+  useEffect(() => {
+    loadUserRoadmaps();
+    if (roleIdParam) {
+      loadSpecificRoadmap(parseInt(roleIdParam));
+    }
+  }, [roleIdParam]);
+
+  const loadUserRoadmaps = async () => {
+    try {
+      setLoading(true);
+      const roadmaps = await roleReadyApi.getUserRoadmaps();
+      setUserRoadmaps(roadmaps);
+      if (roadmaps.length > 0) {
+        setShowGeneratedRoadmaps(true);
+      }
+    } catch (err) {
+      console.error('Failed to load user roadmaps:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSpecificRoadmap = async (roleId: number) => {
+    try {
+      setLoading(true);
+      const roadmap = await roleReadyApi.getUserRoadmap(roleId);
+      setSelectedRoadmap(roadmap);
+      setShowGeneratedRoadmaps(true);
+    } catch (err) {
+      console.error('Failed to load roadmap:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStepStatusUpdate = async (stepId: number, status: string) => {
+    try {
+      await roleReadyApi.updateRoadmapStepStatus(stepId, status as any);
+      if (selectedRoadmap) {
+        await loadSpecificRoadmap(selectedRoadmap.target_role.id);
+      } else {
+        await loadUserRoadmaps();
+      }
+    } catch (err) {
+      console.error('Failed to update step status:', err);
+    }
+  };
 
   const roleBasedRoadmaps = roadmaps.filter(r => r.category === 'role-based');
   const skillBasedRoadmaps = roadmaps.filter(r => r.category === 'skill-based');
@@ -172,18 +230,143 @@ const Roadmaps: React.FC = () => {
         <div className="container">
           <div className="header-content">
             <h1 className="roadmaps-title">
-              <span className="title-gradient">Developer Roadmaps</span>
+              <span className="title-gradient">Learning Roadmaps</span>
             </h1>
             <p className="roadmaps-description">
-              Community created roadmaps, guides and articles to help developers grow in their career.
-              Explore comprehensive learning paths for various roles and skills.
+              Personalized learning paths based on your skill gap analysis, plus community roadmaps to help you grow.
             </p>
-            <p className="roadmaps-source">
-              Powered by <a href="https://roadmap.sh" target="_blank" rel="noopener noreferrer" className="roadmap-link">roadmap.sh</a>
-            </p>
+            <div className="header-actions">
+              <Link to="/skill-gap-analysis" className="cta-button">
+                <Target className="icon" />
+                Analyze Your Skills
+              </Link>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* User Generated Roadmaps Section */}
+      {showGeneratedRoadmaps && (
+        <section className="roadmaps-section user-roadmaps-section">
+          <div className="container">
+            <div className="section-header">
+              <h2 className="section-title">
+                <span className="section-icon">🎯</span>
+                Your Personalized Roadmaps
+              </h2>
+              <p className="section-description">
+                Roadmaps generated based on your skill gap analysis. Track your progress and complete steps.
+              </p>
+            </div>
+
+            {loading ? (
+              <div className="loading-state">Loading your roadmaps...</div>
+            ) : userRoadmaps.length > 0 ? (
+              <div className="user-roadmaps-list">
+                {userRoadmaps.map((roadmap) => {
+                  const completedSteps = roadmap.steps.filter(s => s.status === 'completed').length;
+                  const totalSteps = roadmap.steps.length;
+                  const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+                  
+                  return (
+                    <div
+                      key={roadmap.id}
+                      className={`user-roadmap-card ${selectedRoadmap?.id === roadmap.id ? 'active' : ''}`}
+                      onClick={() => setSelectedRoadmap(roadmap)}
+                    >
+                      <div className="roadmap-card-header">
+                        <div>
+                          <h3>{roadmap.target_role.name}</h3>
+                          <p className="industry">{roadmap.target_role.industry.name}</p>
+                        </div>
+                        <div className="progress-indicator">
+                          <div className="progress-bar">
+                            <div 
+                              className="progress-fill" 
+                              style={{ width: `${progress}%` }}
+                            ></div>
+                          </div>
+                          <span className="progress-text">{completedSteps}/{totalSteps} steps</span>
+                        </div>
+                      </div>
+                      <div className="roadmap-stats">
+                        <div className="stat">
+                          <BookOpen className="icon" />
+                          <span>{totalSteps} Steps</span>
+                        </div>
+                        <div className="stat">
+                          <CheckCircle className="icon" />
+                          <span>{completedSteps} Completed</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="empty-roadmaps">
+                <Target className="icon-large" />
+                <h3>No personalized roadmaps yet</h3>
+                <p>Run a skill gap analysis to generate your first personalized roadmap</p>
+                <Link to="/skill-gap-analysis" className="cta-button">
+                  Start Skill Gap Analysis
+                </Link>
+              </div>
+            )}
+
+            {/* Selected Roadmap Details */}
+            {selectedRoadmap && (
+              <div className="roadmap-details">
+                <div className="details-header">
+                  <h3>{selectedRoadmap.target_role.name} - Learning Roadmap</h3>
+                  <button onClick={() => setSelectedRoadmap(null)} className="close-button">×</button>
+                </div>
+                <div className="roadmap-steps-list">
+                  {selectedRoadmap.steps.map((step) => (
+                    <div key={step.id} className={`roadmap-step ${step.status}`}>
+                      <div className="step-number">{step.step_order}</div>
+                      <div className="step-content">
+                        <div className="step-header">
+                          <h4>{step.title}</h4>
+                          <select
+                            value={step.status}
+                            onChange={(e) => handleStepStatusUpdate(step.id, e.target.value)}
+                            className="status-select"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="skipped">Skipped</option>
+                          </select>
+                        </div>
+                        <p className="step-description">{step.description}</p>
+                        <div className="step-meta">
+                          <span className="skill-badge">{step.skill.name}</span>
+                          <span className="hours">{step.estimated_hours} hours</span>
+                        </div>
+                        {step.resources && step.resources.length > 0 && (
+                          <div className="step-resources">
+                            <strong>Resources:</strong>
+                            <ul>
+                              {step.resources.map((resource: any, idx: number) => (
+                                <li key={idx}>
+                                  <a href={resource.url} target="_blank" rel="noopener noreferrer">
+                                    {resource.title}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Search and Filter Bar */}
       <div className="roadmaps-filters">

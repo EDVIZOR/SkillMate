@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '../../components';
 import './VerifyOTP.css';
 
-const API_BASE_URL = 'http://localhost:8000/api/auth';
+const API_BASE_URL = '/api/auth';
 
 const VerifyOTP: React.FC = () => {
   const navigate = useNavigate();

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Menu, Sparkles, MessageSquare, Trash2, Clock } from 'lucide-react';
+import { Send, Plus, Menu, Sparkles, MessageSquare, Trash2, Clock, Share2, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { sendMessageToLongCat, ChatMessage } from '../../services/longcatApi';
+import { sendMessageToLongCat, ChatMessage as LongCatMessage } from '../../services/longcatApi';
+import { chatApi, Chat, ChatMessage } from '../../services/chatApi';
 import './Chatbot.css';
 
 // Safe Markdown renderer component
@@ -17,33 +18,25 @@ function SafeMarkdown({ content }: SafeMarkdownProps) {
   );
 }
 
-interface Conversation {
-  id: string;
-  title: string;
-  updated_at: string;
-  message_count: number;
-  messages: Message[];
-}
-
 interface Message {
-  id: number | string;
-  type: 'user' | 'ai';
+  id?: number | string;
+  type: 'user' | 'assistant';
   content: string;
-  timestamp: Date;
+  timestamp?: Date;
   isError?: boolean;
+  created_at?: string;
 }
-
-const STORAGE_KEY = 'skillmate_conversations';
 
 export default function Chatbot() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversation, setActiveConversation] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Chat[]>([]);
+  const [activeConversation, setActiveConversation] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -62,51 +55,100 @@ export default function Chatbot() {
     }
   }, [input]);
 
-  // Load conversations from localStorage on mount
+  // Load conversations from backend on mount
   useEffect(() => {
     loadConversations();
   }, []);
 
-  const loadConversations = () => {
+  const loadConversations = async () => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Convert date strings back to Date objects
-        const conversationsWithDates = parsed.map((conv: any) => ({
-          ...conv,
-          updated_at: conv.updated_at,
-          messages: (conv.messages || []).map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }))
-        }));
-        setConversations(conversationsWithDates);
-        
-        // Auto-select first conversation if available
-        if (conversationsWithDates.length > 0 && !activeConversation) {
-          loadConversation(conversationsWithDates[0].id);
-        }
+      setLoading(true);
+      const chats = await chatApi.getChats();
+      setConversations(chats);
+      
+      // Auto-select first conversation if available
+      if (chats.length > 0 && !activeConversation) {
+        loadConversation(chats[0].id);
       }
     } catch (err) {
       console.error('Failed to load conversations:', err);
+      setError('Failed to load conversations. Please refresh the page.');
       setConversations([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const saveConversations = (convs: Conversation[]) => {
+  const loadConversation = async (chatId: number) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(convs));
+      const chat = await chatApi.getChat(chatId);
+      setActiveConversation(chatId);
+      
+      // Convert backend messages to frontend format
+      const formattedMessages: Message[] = chat.messages.map((msg: ChatMessage) => ({
+        id: msg.id,
+        type: (msg.message_type || msg.type) as 'user' | 'assistant',
+        content: msg.content,
+        isError: msg.is_error || msg.isError,
+        timestamp: msg.created_at ? new Date(msg.created_at) : new Date(),
+        created_at: msg.created_at,
+      }));
+      
+      setMessages(formattedMessages);
     } catch (err) {
-      console.error('Failed to save conversations:', err);
+      console.error('Failed to load conversation:', err);
+      setError('Failed to load conversation.');
     }
   };
 
-  const loadConversation = (conversationId: string) => {
-    const conversation = conversations.find(c => c.id === conversationId);
-    if (conversation) {
-      setActiveConversation(conversationId);
-      setMessages(conversation.messages || []);
+  const saveChatToBackend = async (chatId: number | null, title: string, messagesToSave: Message[]) => {
+    try {
+      if (chatId) {
+        // Update existing chat
+        await chatApi.saveMessages(chatId, messagesToSave);
+        await chatApi.updateChat(chatId, { title });
+      } else {
+        // Create new chat
+        const newChat = await chatApi.createChatWithMessages(title, messagesToSave);
+        setActiveConversation(newChat.id);
+        return newChat;
+      }
+    } catch (err) {
+      console.error('Failed to save chat to backend:', err);
+      // Don't throw - allow user to continue
+    }
+  };
+
+  const copyShareLink = async (shareUrl: string) => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareLinkCopied(true);
+      setTimeout(() => setShareLinkCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
+
+  const handleShareChat = async (chatId: number) => {
+    try {
+      const chat = conversations.find(c => c.id === chatId);
+      if (!chat) return;
+      
+      // Toggle share status
+      const updatedChat = await chatApi.shareChat(chatId, !chat.is_shared);
+      
+      // Update local state
+      setConversations(conversations.map(c => 
+        c.id === chatId ? updatedChat : c
+      ));
+      
+      // Copy link if sharing
+      if (updatedChat.is_shared) {
+        await copyShareLink(updatedChat.share_url);
+      }
+    } catch (err) {
+      console.error('Failed to share chat:', err);
+      setError('Failed to share chat.');
     }
   };
 
@@ -129,7 +171,7 @@ export default function Chatbot() {
 
     try {
       // Convert messages to LongCat API format
-      const chatMessages: ChatMessage[] = updatedMessages
+      const chatMessages: LongCatMessage[] = updatedMessages
         .filter(msg => !msg.isError)
         .map(msg => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
@@ -144,20 +186,13 @@ export default function Chatbot() {
         
         const aiMessage: Message = {
           id: Date.now() + 1,
-          type: 'ai',
+          type: 'assistant',
           content: aiContent,
           timestamp: new Date()
         };
 
         const finalMessages = [...updatedMessages, aiMessage];
         setMessages(finalMessages);
-
-        // Update or create conversation
-        let conversationId = activeConversation;
-        if (!conversationId) {
-          conversationId = `conv_${Date.now()}`;
-          setActiveConversation(conversationId);
-        }
 
         // Generate title from first user message if new conversation
         let title = 'New Conversation';
@@ -168,19 +203,16 @@ export default function Chatbot() {
           }
         }
 
-        // Update conversations
-        const updatedConversations = conversations.filter(c => c.id !== conversationId);
-        const conversation: Conversation = {
-          id: conversationId,
-          title: title,
-          updated_at: new Date().toISOString(),
-          message_count: finalMessages.length,
-          messages: finalMessages
-        };
+        // Save to backend
+        const savedChat = await saveChatToBackend(activeConversation, title, finalMessages);
         
-        const newConversations = [conversation, ...updatedConversations];
-        setConversations(newConversations);
-        saveConversations(newConversations);
+        // Reload conversations to get updated data
+        await loadConversations();
+        
+        // If new chat was created, load it
+        if (savedChat) {
+          await loadConversation(savedChat.id);
+        }
       }
     } catch (err: any) {
       console.error('Failed to send message:', err);
@@ -212,23 +244,28 @@ export default function Chatbot() {
     setError('');
   };
 
-  const deleteConversation = (id: string, e: React.MouseEvent<HTMLButtonElement>) => {
+  const deleteConversation = async (id: number, e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to delete this conversation?')) {
       return;
     }
 
-    const updatedConversations = conversations.filter(c => c.id !== id);
-    setConversations(updatedConversations);
-    saveConversations(updatedConversations);
-    
-    if (activeConversation === id) {
-      setActiveConversation(null);
-      setMessages([]);
-      // Load first remaining conversation if available
-      if (updatedConversations.length > 0) {
-        loadConversation(updatedConversations[0].id);
+    try {
+      await chatApi.deleteChat(id);
+      const updatedConversations = conversations.filter(c => c.id !== id);
+      setConversations(updatedConversations);
+      
+      if (activeConversation === id) {
+        setActiveConversation(null);
+        setMessages([]);
+        // Load first remaining conversation if available
+        if (updatedConversations.length > 0) {
+          await loadConversation(updatedConversations[0].id);
+        }
       }
+    } catch (err) {
+      console.error('Failed to delete conversation:', err);
+      setError('Failed to delete conversation.');
     }
   };
 
@@ -244,7 +281,8 @@ export default function Chatbot() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const formatTime = (date: Date) => {
+  const formatTime = (date?: Date) => {
+    if (!date) return '';
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
@@ -284,7 +322,14 @@ export default function Chatbot() {
                   <div className="conversation-content">
                     <div className="conversation-header">
                       <MessageSquare className="icon-small" />
-                      <p className="conversation-title">{conv.title}</p>
+                      <p className="conversation-title">
+                        {conv.title}
+                        {conv.is_shared && (
+                          <span className="shared-badge" title="This chat is shared">
+                            <Share2 className="icon-tiny" />
+                          </span>
+                        )}
+                      </p>
                     </div>
                     <div className="conversation-meta">
                       <span className="conversation-date">
@@ -294,14 +339,28 @@ export default function Chatbot() {
                       <span className="message-count">{conv.message_count} messages</span>
                     </div>
                   </div>
-                  <button 
-                    className="delete-button"
-                    onClick={(e) => deleteConversation(conv.id, e)}
-                    type="button"
-                    aria-label="Delete conversation"
-                  >
-                    <Trash2 className="icon-small" />
-                  </button>
+                  <div className="conversation-actions">
+                    <button 
+                      className={`share-button ${conv.is_shared ? 'shared-active' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShareChat(conv.id);
+                      }}
+                      type="button"
+                      aria-label={conv.is_shared ? "Unshare conversation" : "Share conversation"}
+                      title={conv.is_shared ? "Unshare conversation" : "Share conversation - Click to get shareable link"}
+                    >
+                      <Share2 className={`icon-small ${conv.is_shared ? 'shared' : ''}`} />
+                    </button>
+                    <button 
+                      className="delete-button"
+                      onClick={(e) => deleteConversation(conv.id, e)}
+                      type="button"
+                      aria-label="Delete conversation"
+                    >
+                      <Trash2 className="icon-small" />
+                    </button>
+                  </div>
                 </button>
               ))}
             </div>
@@ -329,6 +388,33 @@ export default function Chatbot() {
               <span className="chat-title-text">SkillMate AI Assistant</span>
             </div>
           </div>
+          {activeConversation && conversations.find(c => c.id === activeConversation)?.is_shared && (
+            <div className="share-link-container">
+              <button
+                onClick={() => {
+                  const chat = conversations.find(c => c.id === activeConversation);
+                  if (chat) {
+                    copyShareLink(chat.share_url);
+                  }
+                }}
+                className="share-link-button"
+                type="button"
+                title="Copy share link"
+              >
+                {shareLinkCopied ? (
+                  <>
+                    <Check className="icon-small" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="icon-small" />
+                    <span>Copy Link</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Error Banner */}
@@ -374,38 +460,41 @@ export default function Chatbot() {
             ) : (
               <>
                 <div className="messages-list">
-                  {messages.map((message) => (
-                    <div key={message.id} className="message-wrapper">
-                      <div className={`message-bubble ${message.type === 'ai' ? 'ai-message' : 'user-message'} ${message.isError ? 'error' : ''}`}>
-                        <div className="message-header">
-                          <span className="message-sender">
-                            {message.type === 'ai' ? (
-                              <>
-                                <Sparkles className="icon-tiny" />
-                                SkillMate AI
-                              </>
+                  {messages.map((message) => {
+                    const isAI = message.type === 'assistant';
+                    return (
+                      <div key={message.id} className={`message-wrapper ${isAI ? 'ai-message-wrapper' : 'user-message-wrapper'}`}>
+                        <div className={`message-bubble ${isAI ? 'ai-message' : 'user-message'} ${message.isError ? 'error' : ''}`}>
+                          <div className="message-header">
+                            <span className="message-sender">
+                              {isAI ? (
+                                <>
+                                  <Sparkles className="icon-tiny" />
+                                  SkillMate AI
+                                </>
+                              ) : (
+                                'You'
+                              )}
+                            </span>
+                            <span className="message-time">
+                              {formatTime(message.timestamp)}
+                            </span>
+                          </div>
+                          <div className="message-text">
+                            {isAI ? (
+                              <SafeMarkdown content={message.content} />
                             ) : (
-                              'You'
+                              <p>{message.content || ''}</p>
                             )}
-                          </span>
-                          <span className="message-time">
-                            {formatTime(message.timestamp)}
-                          </span>
-                        </div>
-                        <div className="message-text">
-                          {message.type === 'ai' ? (
-                            <SafeMarkdown content={message.content} />
-                          ) : (
-                            <p>{message.content || ''}</p>
-                          )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Typing Indicator */}
                   {isTyping && (
-                    <div className="message-wrapper">
+                    <div className="message-wrapper ai-message-wrapper">
                       <div className="message-bubble ai-message typing">
                         <div className="message-header">
                           <span className="message-sender">

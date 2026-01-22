@@ -4,7 +4,7 @@ import { Button } from '../../components';
 import Input from '../../components/Input/Input';
 import '../Login/Auth.css';
 
-const API_BASE_URL = 'http://localhost:8000/api/auth';
+const API_BASE_URL = '/api/auth';
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -69,7 +69,11 @@ const Signup: React.FC = () => {
     setErrors({});
 
     try {
-      const response = await fetch(`${API_BASE_URL}/signup/`, {
+      const url = `${API_BASE_URL}/signup/`;
+      console.log('Signup request URL:', url);
+      console.log('Signup request data:', { name: formData.name, email: formData.email });
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,8 +85,18 @@ const Signup: React.FC = () => {
           confirm_password: formData.confirmPassword,
         }),
       });
+      
+      console.log('Signup response status:', response.status, response.statusText);
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        // If response is not JSON, show a more helpful error
+        setErrors({ email: `Server error: ${response.status} ${response.statusText}. Please try again.` });
+        setLoading(false);
+        return;
+      }
 
       if (response.ok) {
         // Navigate to OTP verification page
@@ -90,17 +104,22 @@ const Signup: React.FC = () => {
       } else {
         // Handle errors
         if (data.email) {
-          setErrors({ email: data.email[0] });
+          setErrors({ email: Array.isArray(data.email) ? data.email[0] : data.email });
         } else if (data.password) {
-          setErrors({ password: data.password[0] });
+          setErrors({ password: Array.isArray(data.password) ? data.password[0] : data.password });
         } else if (data.non_field_errors) {
-          setErrors({ email: data.non_field_errors[0] });
+          setErrors({ email: Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : data.non_field_errors });
+        } else if (data.error) {
+          setErrors({ email: data.error });
         } else {
           setErrors({ email: 'Something went wrong. Please try again.' });
         }
       }
-    } catch (error) {
-      setErrors({ email: 'Network error. Please check your connection.' });
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      // More detailed error message
+      const errorMessage = error.message || 'Network error. Please check your connection and ensure the backend server is running.';
+      setErrors({ email: errorMessage });
     } finally {
       setLoading(false);
     }

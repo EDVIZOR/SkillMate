@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = '/api';
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -38,6 +38,21 @@ const api = {
   post: async (endpoint: string, data?: any) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
+      headers: getHeaders(),
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw { response: { data: error } };
+    }
+    
+    return { data: await response.json() };
+  },
+
+  patch: async (endpoint: string, data?: any) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PATCH',
       headers: getHeaders(),
       body: data ? JSON.stringify(data) : undefined,
     });
