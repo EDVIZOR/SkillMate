@@ -130,7 +130,7 @@ class RoadmapStepSerializer(serializers.ModelSerializer):
         model = RoadmapStep
         fields = [
             'id', 'skill', 'step_order', 'title', 'description',
-            'status', 'resources', 'estimated_hours',
+            'status', 'resources', 'assignments', 'estimated_hours',
             'started_at', 'completed_at', 'created_at', 'updated_at'
         ]
         read_only_fields = [
