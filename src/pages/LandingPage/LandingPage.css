@@ -1,0 +1,32 @@
+/* Custom styles - animations removed */
+
+/* Custom gradient text */
+.logo-text {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero CTA secondary link arrow */
+.hero-cta-secondary::after {
+  content: '→';
+  transition: transform 200ms ease-in-out;
+  display: inline-block;
+}
+
+.hero-cta-secondary:hover::after {
+  transform: translateX(4px);
+}
+
+/* Final CTA section overlay */
+.final-cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
