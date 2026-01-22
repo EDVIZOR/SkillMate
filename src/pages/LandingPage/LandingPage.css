@@ -2,10 +2,15 @@
 
 /* Custom gradient text */
 .logo-text {
+  font-family: 'Mulish', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Hero CTA secondary link arrow */
